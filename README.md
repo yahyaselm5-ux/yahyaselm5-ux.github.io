@@ -6,7 +6,9 @@ Yazılım mühendisliği öğrencisi olarak deneyimlerimi, projelerimi ve yetkin
 
 ## Özellikler
 
-- Canvas ile çizilen, yüksek çözünürlüklü ekranlara uyumlu animasyonlu şehir sahnesi
+- Canvas ile çizilen, yüksek çözünürlüklü ekranlara uyumlu animasyonlu şehir sahnesi ve ön plan yağmuru
+- Özel imleç, kaydırmaya duyarlı başlık ve kart animasyonları, akan bantlar
+- Harici kütüphane kullanılmadan yazılmış animasyon katmanı
 - Siteyi komutlarla gezmeyi sağlayan etkileşimli terminal
 - Mobil uyumlu, klavye ile erişilebilir arayüz
 - Hareket azaltma tercihine (`prefers-reduced-motion`) saygı
@@ -21,7 +23,8 @@ HTML5, CSS3 ve framework kullanılmadan yazılmış JavaScript.
 ```
 index.html     Sayfa içeriği
 style.css      Tasarım
-script.js      Animasyonlar ve terminal
+script.js      Şehir sahnesi, yağmur ve terminal
+fx.js          İmleç, kaydırma animasyonları ve geçiş efektleri
 404.html       Bulunamayan sayfalar için hata sayfası
 favicon.svg    Site simgesi
 assets/        CV (PDF)

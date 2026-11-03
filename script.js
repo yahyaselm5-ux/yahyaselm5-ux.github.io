@@ -1,7 +1,7 @@
 /* Yahya Selim Özdamar — kişisel web sitesi */
 "use strict";
 
-const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const reduceMotion = typeof window.__reduce === "boolean" ? window.__reduce : window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
@@ -167,7 +167,7 @@ function city() {
 
     layers = [buildLayer(0), buildLayer(1), buildLayer(2)];
 
-    const count = Math.round((W * H) / 9000);
+    const count = 0; // yağmur artık tüm sayfanın önündeki ayrı katmanda
     drops = Array.from({ length: count }, () => ({
       x: rand(0, W), y: rand(-H, H), len: rand(8, 22), sp: rand(6, 13), a: rand(0.08, 0.35),
     }));
@@ -196,6 +196,41 @@ function city() {
     hz.addColorStop(1, "rgba(255,46,136,0)");
     ctx.fillStyle = hz;
     ctx.fillRect(0, 0, W, horizon);
+    drawMoon();
+  }
+
+  // Dev ay ve önünden geçen bulut şeritleri
+  function drawMoon() {
+    const r = Math.min(W, H) * 0.16;
+    const mx = W * 0.74 + curX * 14;
+    const my = horizon * 0.36 + curY * 6;
+    const glow = ctx.createRadialGradient(mx, my, r * 0.8, mx, my, r * 2.6);
+    glow.addColorStop(0, "rgba(255,120,190,0.35)");
+    glow.addColorStop(1, "rgba(255,46,136,0)");
+    ctx.fillStyle = glow;
+    ctx.fillRect(mx - r * 3, my - r * 3, r * 6, r * 6);
+    const body = ctx.createLinearGradient(mx, my - r, mx, my + r);
+    body.addColorStop(0, "#FFF3F9");
+    body.addColorStop(0.55, "#FFC4E1");
+    body.addColorStop(1, "#FF5FA8");
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.arc(mx, my, r, 0, Math.PI * 2);
+    ctx.fill();
+    // kraterler
+    ctx.fillStyle = "rgba(255,46,136,0.18)";
+    [[-0.35, -0.2, 0.18], [0.25, 0.15, 0.24], [-0.05, 0.45, 0.12], [0.4, -0.4, 0.1]].forEach(([dx, dy, s]) => {
+      ctx.beginPath();
+      ctx.arc(mx + dx * r, my + dy * r, s * r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    // bulut şeritleri
+    for (let i = 0; i < 4; i++) {
+      const y = my - r * 0.6 + i * r * 0.42;
+      const off = ((t * (8 + i * 5)) % (W + 600)) - 300;
+      ctx.fillStyle = `rgba(27,18,64,${0.55 - i * 0.08})`;
+      ctx.fillRect(W - off - 260, y, 260 + i * 60, r * 0.07 + i * 2);
+    }
   }
 
   function drawFloor() {
@@ -511,28 +546,29 @@ function ui() {
 }
 
 
-/* Arka plan yağmuru */
+/* Ön plan yağmuru ve şimşek */
 function rain() {
   const canvas = $("#rain");
   const ctx = canvas.getContext("2d");
-  const hero = $("#top");
-  let W, H, DPR, drops = [], ripples = [], heroFull = false;
+  let W, H, DPR, drops = [], ripples = [];
+  let wind = 0, windTarget = 0, flash = 0, nextFlash = 0;
 
   const LAYERS = [
-    { len: [6, 12], sp: [3, 5], a: 0.09, w: 1 },
-    { len: [10, 18], sp: [5, 8], a: 0.15, w: 1 },
-    { len: [16, 28], sp: [8, 12], a: 0.24, w: 1.4 },
+    { len: [10, 18], sp: [6, 9], a: 0.22, w: 1 },
+    { len: [18, 30], sp: [10, 14], a: 0.34, w: 1.2 },
+    { len: [34, 56], sp: [16, 22], a: 0.42, w: 1.5 },
   ];
+  const COLORS = ["#C9C2FF", "#29E6F2", "#C9C2FF", "#FF7AB8"];
   const rand = (a, b) => a + Math.random() * (b - a);
 
   function spawn(d, top) {
     const L = LAYERS[d.layer];
-    d.x = rand(-40, W + 40);
-    d.y = top ? rand(-H, 0) : rand(-H, H);
+    d.x = rand(-80, W + 80);
+    d.y = top ? rand(-H * 0.4, -20) : rand(-H, H);
     d.len = rand(...L.len);
     d.sp = rand(...L.sp);
-    d.end = d.layer === 2 ? rand(H * 0.82, H) : H + 30; // ön katman yere çarpıp halka bırakır
-    d.cyan = Math.random() < 0.3;
+    d.end = d.layer === 2 && Math.random() < 0.4 ? rand(H * 0.6, H) : H + 60;
+    d.col = COLORS[(Math.random() * COLORS.length) | 0];
   }
 
   function setup() {
@@ -540,50 +576,66 @@ function rain() {
     W = window.innerWidth; H = window.innerHeight;
     canvas.width = W * DPR; canvas.height = H * DPR;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    const n = Math.round((W * H) / 11000);
+    const n = Math.round((W * H) / (W < 760 ? 7000 : 4600));
     drops = Array.from({ length: n }, (_, i) => {
-      const d = { layer: i % 3 };
+      const d = { layer: i % 3 === 0 ? 2 : i % 3 };
       spawn(d, false);
       return d;
     });
+    nextFlash = performance.now() + rand(5000, 9000);
   }
 
-  function frame() {
+  window.addEventListener("pointermove", (e) => { windTarget = (e.clientX / W - 0.5) * 0.5; });
+
+  function frame(now) {
     requestAnimationFrame(frame);
-    if (heroFull) return; // hero tamamen ekrandayken kendi yağmuru var
+    const boost = Math.min(Math.abs((window.__fx && window.__fx.v) || 0) * 0.04, 2.2);
+    wind += (windTarget - wind) * 0.03;
     ctx.clearRect(0, 0, W, H);
+
+    // uzak şimşek: kısa, yumuşak bir pembe aydınlanma
+    if (now > nextFlash) { flash = 1; nextFlash = now + rand(9000, 16000); }
+    if (flash > 0.01) {
+      const f = flash > 0.7 ? 0.09 : flash > 0.5 ? 0.02 : flash * 0.08;
+      ctx.fillStyle = `rgba(255,120,200,${f})`;
+      ctx.fillRect(0, 0, W, H);
+      flash *= 0.93;
+    }
+
     ctx.lineCap = "round";
+    const slant = 0.14 + wind;
     for (const d of drops) {
       const L = LAYERS[d.layer];
+      const len = d.len * (1 + boost);
       ctx.globalAlpha = L.a;
-      ctx.strokeStyle = d.cyan ? "#29E6F2" : "#B9B2E6";
+      ctx.strokeStyle = d.col;
       ctx.lineWidth = L.w;
       ctx.beginPath();
       ctx.moveTo(d.x, d.y);
-      ctx.lineTo(d.x - d.len * 0.12, d.y + d.len);
+      ctx.lineTo(d.x - len * slant, d.y + len);
       ctx.stroke();
-      d.y += d.sp; d.x -= d.sp * 0.12;
+      d.y += d.sp * (1 + boost * 0.5);
+      d.x -= d.sp * slant;
       if (d.y > d.end) {
-        if (d.layer === 2) ripples.push({ x: d.x, y: d.end + d.len, r: 1, a: 0.35, cyan: d.cyan });
+        if (d.end < H) ripples.push({ x: d.x, y: d.end + len * 0.9, r: 1, a: 0.6, col: d.col });
         spawn(d, true);
       }
     }
-    ctx.lineWidth = 1;
-    ripples = ripples.filter((r) => r.a > 0.01);
+    ctx.lineWidth = 1.2;
+    ripples = ripples.filter((r) => r.a > 0.02);
     for (const r of ripples) {
       ctx.globalAlpha = r.a;
-      ctx.strokeStyle = r.cyan ? "#29E6F2" : "#B9B2E6";
+      ctx.strokeStyle = r.col;
       ctx.beginPath();
-      ctx.ellipse(r.x, r.y, r.r * 2.4, r.r * 0.6, 0, 0, Math.PI * 2);
+      ctx.ellipse(r.x, r.y, r.r * 2.6, r.r * 0.7, 0, 0, Math.PI * 2);
       ctx.stroke();
-      r.r += 0.45; r.a *= 0.92;
+      r.r += 0.55; r.a *= 0.9;
     }
     ctx.globalAlpha = 1;
   }
 
   setup();
   if (reduceMotion) return;
-  new IntersectionObserver(([e]) => { heroFull = e.intersectionRatio > 0.95; }, { threshold: [0, 0.95, 1] }).observe(hero);
   let rt;
   window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(setup, 150); });
   requestAnimationFrame(frame);
@@ -648,4 +700,4 @@ hoverScramble();
 ui();
 tiltCards();
 terminal();
-runBoot(introName);
+runBoot(() => { introName(); if (window.fxIntro) window.fxIntro(); });

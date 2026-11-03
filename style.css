@@ -8,6 +8,7 @@
   --magenta: #FF2E88;    /* ana neon */
   --cyan: #29E6F2;       /* ikincil neon */
   --amber: #FFC23D;      /* yalnızca "canlı/devam ediyor" durumları */
+  --volt: #F3E600;       /* uyarı bandı ve geçiş sarısı */
   --ink: #ECE8FF;        /* metin */
   --dim: #A39CCB;        /* ikincil metin */
 
@@ -217,7 +218,8 @@ code {
   background: rgba(22, 18, 48, .7);
   border: 1px solid var(--b);
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
-  transition: background .2s, color .2s, border-color .2s, text-shadow .2s, transform .12s;
+  transform: translate(var(--tx, 0px), var(--ty, 0px));
+  transition: background .2s, color .2s, border-color .2s, text-shadow .2s, transform .25s cubic-bezier(.2, .8, .2, 1);
 }
 /* Üzerinden geçen ışık bandı */
 .btn::after {
@@ -239,7 +241,7 @@ code {
   border-color: var(--accent-2); color: var(--accent-2);
   text-shadow: -1px 0 rgba(255, 46, 136, .7), 1px 0 rgba(41, 230, 242, .7);
 }
-.btn:active { transform: translateY(1px); }
+.btn:active { transform: translate(var(--tx, 0px), calc(var(--ty, 0px) + 2px)) scale(.97); }
 .btn-primary {
   background: var(--accent); color: var(--night); border-color: var(--accent);
 }
@@ -526,9 +528,17 @@ code {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html:not(.fx-on) { scroll-behavior: auto; }
+  html:not(.fx-on) *, html:not(.fx-on) *::before, html:not(.fx-on) *::after { animation: none !important; transition: none !important; }
 }
+
+.fx-toggle {
+  font-family: var(--f-mono); font-size: .78rem;
+  background: none; color: var(--dim);
+  border: 1px solid var(--edge); padding: 4px 10px; cursor: pointer;
+  transition: color .2s, border-color .2s;
+}
+.fx-toggle:hover, .fx-toggle[aria-pressed="true"] { color: var(--volt); border-color: var(--volt); }
 
 /* 404 sayfası */
 .notfound {
@@ -540,7 +550,7 @@ code {
 
 /* Arka plan yağmuru */
 .rain {
-  position: fixed; inset: 0; z-index: 0;
+  position: fixed; inset: 0; z-index: 3;
   width: 100%; height: 100%;
   pointer-events: none;
 }
@@ -584,3 +594,175 @@ main, .footer { position: relative; z-index: 1; }
   animation: lensScan 6s linear infinite;
 }
 @keyframes lensScan { to { background-position: 0 120px; } }
+
+/* ================= Hareket katmanı ================= */
+
+/* Özel imleç */
+html.has-cursor, html.has-cursor * { cursor: none !important; }
+.cursor { position: fixed; inset: 0; z-index: 120; pointer-events: none; opacity: 0; transition: opacity .3s; }
+.cursor.on { opacity: 1; }
+.cursor-dot {
+  position: absolute; left: 0; top: 0; width: 6px; height: 6px; margin: -3px 0 0 -3px;
+  background: var(--volt); box-shadow: 0 0 10px var(--volt);
+  transform: translate(var(--x), var(--y)) rotate(45deg);
+}
+.cursor-ring {
+  --size: 34px;
+  position: absolute; left: 0; top: 0;
+  width: var(--size); height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  border: 1.5px solid var(--ink);
+  clip-path: polygon(0 0, 30% 0, 30% 2px, 70% 2px, 70% 0, 100% 0, 100% 100%, 70% 100%, 70% calc(100% - 2px), 30% calc(100% - 2px), 30% 100%, 0 100%);
+  transform: translate(var(--rx), var(--ry));
+  transition: width .25s cubic-bezier(.2, .8, .2, 1), height .25s cubic-bezier(.2, .8, .2, 1), margin .25s cubic-bezier(.2, .8, .2, 1), border-color .2s, background .2s;
+}
+.ghost-c, .ghost-m { opacity: .7; mix-blend-mode: screen; }
+.ghost-c { border-color: var(--cyan); transform: translate(calc(var(--rx) - var(--sx)), calc(var(--ry) - var(--sy))); }
+.ghost-m { border-color: var(--magenta); transform: translate(calc(var(--rx) + var(--sx)), calc(var(--ry) + var(--sy))); }
+.cursor-label {
+  position: absolute; left: 0; top: 0;
+  transform: translate(calc(var(--rx) + 28px), calc(var(--ry) + 18px));
+  font-family: var(--f-mono); font-size: .72rem; color: var(--night);
+  background: var(--volt); padding: 2px 7px;
+  opacity: 0; transition: opacity .2s;
+  white-space: nowrap;
+}
+.cursor.is-link .cursor-ring { --size: 58px; border-color: var(--volt); background: rgba(243, 230, 0, .06); }
+.cursor.is-link .cursor-label:not(:empty) { opacity: 1; }
+.cursor.is-name .cursor-ring { --size: 300px; border-color: rgba(41, 230, 242, .5); }
+.cursor.is-name .ghost-c, .cursor.is-name .ghost-m { --size: 300px; }
+.cursor.is-text .cursor-ring { --size: 18px; }
+.cursor.press .cursor-ring { --size: 22px; border-color: var(--magenta); }
+
+/* Üst ilerleme çubuğu */
+.progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 2px; z-index: 60;
+  background: linear-gradient(90deg, var(--magenta), var(--volt), var(--cyan));
+  transform-origin: left; transform: scaleX(0);
+  box-shadow: 0 0 10px rgba(243, 230, 0, .6);
+}
+
+/* Hero dikey yazı */
+.hero-vert {
+  position: absolute; z-index: 2; left: 22px; top: 50%;
+  margin: 0; translate: 0 -50%;
+  writing-mode: vertical-rl;
+  font-family: var(--f-mono); font-size: .8rem; letter-spacing: .4em;
+  color: var(--cyan); opacity: .7;
+}
+@media (max-width: 760px) { .hero-vert { display: none; } }
+#city { transform-origin: 70% 60%; will-change: transform; }
+.hero-inner { will-change: transform, opacity; }
+
+/* Hero giriş */
+html.fx .hero-inner > *, html.fx .status, html.fx .scroll-hint { opacity: 0; }
+html.fx .hero-inner > * { translate: 0 40px; }
+html.fx .status { translate: 60px 0; }
+html.fx.intro .hero-inner > *, html.fx.intro .status, html.fx.intro .scroll-hint {
+  opacity: 1; translate: 0 0;
+  transition: opacity .8s ease, translate .9s cubic-bezier(.16, 1, .3, 1);
+}
+html.fx.intro .hero-inner > :nth-child(1) { transition-delay: .05s; }
+html.fx.intro .hero-inner > :nth-child(2) { transition-delay: .15s; }
+html.fx.intro .hero-inner > :nth-child(3) { transition-delay: .55s; }
+html.fx.intro .hero-inner > :nth-child(4) { transition-delay: .7s; }
+html.fx.intro .status { transition-delay: .9s; }
+html.fx.intro .scroll-hint { transition-delay: 1.3s; }
+html.fx h1.name .line { clip-path: inset(0 0 100% 0); }
+html.fx.intro h1.name .line { clip-path: inset(-20% -5% -20% -5%); transition: clip-path 1s cubic-bezier(.16, 1, .3, 1) .2s; }
+html.fx.intro h1.name .line + .line { transition-delay: .35s; }
+
+/* İsim glitch patlaması */
+h1.name .line { position: relative; }
+h1.name .line::before, h1.name .line::after {
+  content: attr(data-text); position: absolute; inset: 0;
+  opacity: 0; pointer-events: none; -webkit-text-stroke: 0;
+}
+h1.name .line::before { color: var(--cyan); }
+h1.name .line::after { color: var(--volt); }
+h1.name .line.burst { animation: jitter .32s steps(3) 1; }
+h1.name .line.burst::before { opacity: .9; animation: g1 .32s steps(3) 1; }
+h1.name .line.burst::after { opacity: .9; animation: g2 .32s steps(3) 1; }
+@keyframes jitter { 0% { translate: 3px 0; } 50% { translate: -4px 0; } 100% { translate: 0 0; } }
+
+/* Uyarı bantları */
+.tapes { position: relative; z-index: 2; height: 170px; margin-top: -60px; overflow: hidden; pointer-events: none; }
+.tape {
+  position: absolute; left: -5%; width: 110%;
+  padding: 12px 0; overflow: hidden; white-space: nowrap;
+  font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; letter-spacing: .04em;
+}
+.tape-a { top: 40px; background: var(--volt); color: var(--night); rotate: -3deg; box-shadow: 0 0 30px rgba(243, 230, 0, .35); z-index: 2; }
+.tape-b { top: 70px; background: var(--magenta); color: var(--night); rotate: 2.5deg; font-family: var(--f-mono); font-weight: 500; font-size: .95rem; }
+.tape::before, .tape::after {
+  content: ""; position: absolute; left: 0; right: 0; height: 4px;
+  background: repeating-linear-gradient(45deg, var(--night) 0 8px, transparent 8px 16px);
+}
+.tape::before { top: 0; } .tape::after { bottom: 0; }
+.tape-track { display: inline-block; will-change: transform; }
+
+/* Hayalet yazılar */
+.section { overflow-x: clip; }
+.ghost {
+  position: absolute; top: 40px; left: 0; z-index: -1;
+  font-family: var(--f-display); font-weight: 700;
+  font-size: clamp(5rem, 16vw, 15rem); line-height: 1;
+  white-space: nowrap; color: transparent;
+  -webkit-text-stroke: 1px rgba(163, 156, 203, .14);
+  pointer-events: none; user-select: none;
+  will-change: transform;
+}
+.section > .wrap { position: relative; }
+
+/* Başlık harfleri */
+html.fx .section .h2 .ch { display: inline-block; translate: 0 110%; opacity: 0; }
+html.fx .section .h2.in .ch {
+  translate: 0 0; opacity: 1;
+  transition: translate .7s cubic-bezier(.16, 1, .3, 1), opacity .4s;
+  transition-delay: calc(var(--i) * 40ms);
+}
+.section .h2 { overflow: hidden; padding-bottom: .08em; }
+.section .h2::selection, .section .h2 .ch::selection { background: var(--accent); }
+.section .h2 .wl { display: none; }
+html.fx .section .h2 { background: linear-gradient(var(--volt), var(--volt)) no-repeat 0 100% / 0 3px; }
+html.fx .section .h2.in { background-size: 100% 3px; transition: background-size .9s cubic-bezier(.16, 1, .3, 1) .35s; }
+
+/* Silme ile açılan bloklar */
+html.fx .rv { opacity: 0; translate: 0 34px; }
+html.fx .rv.in { opacity: 1; translate: 0 0; transition: opacity .6s ease var(--d), translate .9s cubic-bezier(.16, 1, .3, 1) var(--d); }
+.rv .wipe {
+  position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  background: var(--volt);
+  transform: scaleX(0); transform-origin: left;
+}
+html.fx .rv.in .wipe { animation: wipe .95s cubic-bezier(.77, 0, .18, 1) var(--d) forwards; }
+@keyframes wipe {
+  0% { transform: scaleX(0); transform-origin: left; }
+  45% { transform: scaleX(1); transform-origin: left; }
+  55% { transform: scaleX(1); transform-origin: right; background: var(--cyan); }
+  100% { transform: scaleX(0); transform-origin: right; background: var(--cyan); }
+}
+
+/* Kaydırma hızına göre eğilme */
+.tapes, .projects { transform: skewY(calc(var(--skew, 0deg) * .3)); }
+
+/* Proje kartı üzerine gelince tarama çizgisi ve başlıkta renk kayması */
+.project h3 { transition: text-shadow .2s; }
+.project:hover h3 { text-shadow: -2px 0 var(--cyan), 2px 0 var(--magenta); }
+.project .scan {
+  position: absolute; left: 0; right: 0; top: -20%; height: 18%; z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(41, 230, 242, .12), transparent);
+  opacity: 0;
+}
+.project:hover .scan { opacity: 1; animation: cardScan 1.4s linear infinite; }
+@keyframes cardScan { to { top: 110%; } }
+
+/* Menüden bölüme atlarken kısa ekran glitch'i */
+html.jump main { animation: jumpGlitch .42s steps(4) 1; }
+@keyframes jumpGlitch {
+  0% { filter: none; translate: 0 0; }
+  25% { filter: hue-rotate(60deg) saturate(1.8); translate: 6px 0; }
+  50% { filter: hue-rotate(-40deg); translate: -5px 0; }
+  75% { filter: saturate(2); translate: 2px 0; }
+  100% { filter: none; translate: 0 0; }
+}

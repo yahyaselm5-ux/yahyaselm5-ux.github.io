@@ -6,7 +6,7 @@
   <title>Yahya Selim Özdamar | Yazılım Geliştirici</title>
   <meta name="description" content="Yahya Selim Özdamar — Malatya Turgut Özal Üniversitesi yazılım mühendisliği öğrencisi. yapay zeka destekli uygulamalar, native Android ve veritabanı projeleri.">
   <meta name="theme-color" content="#0E0B1E">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' file:; style-src 'self' file: https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' file: data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Yahya Selim Özdamar | Yazılım Geliştirici">
@@ -19,6 +19,14 @@
 </head>
 <body>
   <canvas class="rain" id="rain" aria-hidden="true"></canvas>
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <div class="cursor-ring"></div>
+    <div class="cursor-ring ghost-c"></div>
+    <div class="cursor-ring ghost-m"></div>
+    <div class="cursor-dot"></div>
+    <span class="cursor-label"></span>
+  </div>
+  <div class="progress" id="progress" aria-hidden="true"></div>
   <div class="boot" id="boot" aria-hidden="true">
     <pre class="boot-log" id="bootLog"></pre>
   </div>
@@ -36,6 +44,7 @@
       <a href="#terminal">Terminal</a>
       <a href="#iletisim">İletişim</a>
     </nav>
+    <button class="fx-toggle" id="fxToggle" type="button" aria-pressed="true" title="Animasyonları aç veya kapat">FX açık</button>
     <div class="clock" aria-label="Türkiye saati"><span class="dot"></span>TR <span id="clock">--:--:--</span></div>
   </header>
 
@@ -44,6 +53,7 @@
     <section class="hero" id="top">
       <canvas id="city" aria-hidden="true"></canvas>
       <div class="hero-shade" aria-hidden="true"></div>
+      <p class="hero-vert" aria-hidden="true">ソフトウェアエンジニア／二〇二六</p>
 
       <div class="hero-inner">
         <p class="handle">github/yahyaselm5-ux</p>
@@ -76,8 +86,13 @@
       <a class="scroll-hint" href="#hakkimda" aria-label="Aşağı kaydır"><span></span></a>
     </section>
 
+    <div class="tapes" aria-hidden="true">
+      <div class="tape tape-a"><div class="tape-track" data-speed="1">STAJ VE İŞ FIRSATLARINA AÇIK ✦ YAZILIM MÜHENDİSİ ✦ C# ✦ .NET ✦ KOTLIN ✦ YAPAY ZEKA ✦ </div></div>
+      <div class="tape tape-b"><div class="tape-track" data-speed="-0.7">ソフトウェアエンジニア ✦ AMASYA ✦ MALATYA ✦ 未来はもう始まっている ✦ </div></div>
+    </div>
+
     <!-- HAKKIMDA -->
-    <section class="section" id="hakkimda">
+    <section class="section" id="hakkimda" data-ghost="プロフィール">
       <div class="wrap about">
         <h2 class="h2 glitch" data-text="Hakkımda">Hakkımda</h2>
         <div class="about-body">
@@ -94,7 +109,7 @@
     </section>
 
     <!-- DENEYİM -->
-    <section class="section" id="deneyim">
+    <section class="section" id="deneyim" data-ghost="経歴">
       <div class="wrap">
         <h2 class="h2 glitch" data-text="Deneyim">Deneyim</h2>
         <article class="job cut">
@@ -119,7 +134,7 @@
     </section>
 
     <!-- PROJELER -->
-    <section class="section" id="projeler">
+    <section class="section" id="projeler" data-ghost="プロジェクト">
       <div class="wrap">
         <h2 class="h2 glitch" data-text="Projeler">Projeler</h2>
         <div class="projects projects-4">
@@ -168,7 +183,7 @@
     </section>
 
     <!-- YETKİNLİKLER -->
-    <section class="section" id="yetkinlikler">
+    <section class="section" id="yetkinlikler" data-ghost="スキル">
       <div class="wrap">
         <h2 class="h2 glitch" data-text="Yetkinlikler">Yetkinlikler</h2>
         <div class="loadout">
@@ -193,7 +208,7 @@
     </section>
 
     <!-- TERMİNAL -->
-    <section class="section" id="terminal">
+    <section class="section" id="terminal" data-ghost="ターミナル">
       <div class="wrap">
         <h2 class="h2 glitch" data-text="Terminal">Terminal</h2>
         <p class="sub">Siteyi komutla gezmek istersen buradan yazabilirsin. Başlamak için <code>yardim</code> yaz.</p>
@@ -209,7 +224,7 @@
     </section>
 
     <!-- İLETİŞİM -->
-    <section class="section contact" id="iletisim">
+    <section class="section contact" id="iletisim" data-ghost="連絡先">
       <div class="wrap">
         <h2 class="h2 glitch" data-text="İletişim">İletişim</h2>
         <p class="contact-line">Staj, proje ya da iş birliği için bana yazabilirsin.</p>
@@ -237,6 +252,7 @@
   </footer>
 
   <div class="scanlines" aria-hidden="true"></div>
+  <script src="fx.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
