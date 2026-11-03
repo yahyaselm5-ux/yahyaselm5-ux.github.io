@@ -75,7 +75,7 @@ function decode(el, duration = 1100) {
 }
 function introName() {
   if (reduceMotion) return;
-  const lines = $$(".name .line");
+  const lines = $$("h1.name .line");
   lines.forEach((l, i) => setTimeout(() => decode(l, 900 + i * 250), i * 180));
 }
 
@@ -510,9 +510,141 @@ function ui() {
   $$("main section[id]").forEach((s) => io.observe(s));
 }
 
+
+/* Arka plan yağmuru */
+function rain() {
+  const canvas = $("#rain");
+  const ctx = canvas.getContext("2d");
+  const hero = $("#top");
+  let W, H, DPR, drops = [], ripples = [], heroFull = false;
+
+  const LAYERS = [
+    { len: [6, 12], sp: [3, 5], a: 0.09, w: 1 },
+    { len: [10, 18], sp: [5, 8], a: 0.15, w: 1 },
+    { len: [16, 28], sp: [8, 12], a: 0.24, w: 1.4 },
+  ];
+  const rand = (a, b) => a + Math.random() * (b - a);
+
+  function spawn(d, top) {
+    const L = LAYERS[d.layer];
+    d.x = rand(-40, W + 40);
+    d.y = top ? rand(-H, 0) : rand(-H, H);
+    d.len = rand(...L.len);
+    d.sp = rand(...L.sp);
+    d.end = d.layer === 2 ? rand(H * 0.82, H) : H + 30; // ön katman yere çarpıp halka bırakır
+    d.cyan = Math.random() < 0.3;
+  }
+
+  function setup() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W * DPR; canvas.height = H * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    const n = Math.round((W * H) / 11000);
+    drops = Array.from({ length: n }, (_, i) => {
+      const d = { layer: i % 3 };
+      spawn(d, false);
+      return d;
+    });
+  }
+
+  function frame() {
+    requestAnimationFrame(frame);
+    if (heroFull) return; // hero tamamen ekrandayken kendi yağmuru var
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineCap = "round";
+    for (const d of drops) {
+      const L = LAYERS[d.layer];
+      ctx.globalAlpha = L.a;
+      ctx.strokeStyle = d.cyan ? "#29E6F2" : "#B9B2E6";
+      ctx.lineWidth = L.w;
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - d.len * 0.12, d.y + d.len);
+      ctx.stroke();
+      d.y += d.sp; d.x -= d.sp * 0.12;
+      if (d.y > d.end) {
+        if (d.layer === 2) ripples.push({ x: d.x, y: d.end + d.len, r: 1, a: 0.35, cyan: d.cyan });
+        spawn(d, true);
+      }
+    }
+    ctx.lineWidth = 1;
+    ripples = ripples.filter((r) => r.a > 0.01);
+    for (const r of ripples) {
+      ctx.globalAlpha = r.a;
+      ctx.strokeStyle = r.cyan ? "#29E6F2" : "#B9B2E6";
+      ctx.beginPath();
+      ctx.ellipse(r.x, r.y, r.r * 2.4, r.r * 0.6, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      r.r += 0.45; r.a *= 0.92;
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  setup();
+  if (reduceMotion) return;
+  new IntersectionObserver(([e]) => { heroFull = e.intersectionRatio > 0.95; }, { threshold: [0, 0.95, 1] }).observe(hero);
+  let rt;
+  window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(setup, 150); });
+  requestAnimationFrame(frame);
+}
+
+/* İsim merceği */
+function nameLens() {
+  const wrap = $("#nameWrap");
+  if (!window.matchMedia("(pointer: fine)").matches) return;
+  let lastX = 0, lastY = 0, split = 1.5, raf = 0;
+  const decay = () => {
+    split += (1.5 - split) * 0.12;
+    wrap.style.setProperty("--split", split.toFixed(2) + "px");
+    raf = Math.abs(split - 1.5) > 0.05 ? requestAnimationFrame(decay) : 0;
+  };
+  wrap.addEventListener("pointerenter", () => wrap.classList.add("active"));
+  wrap.addEventListener("pointerleave", () => wrap.classList.remove("active"));
+  wrap.addEventListener("pointermove", (e) => {
+    const r = wrap.getBoundingClientRect();
+    const x = e.clientX - r.left, y = e.clientY - r.top;
+    wrap.style.setProperty("--lx", x + "px");
+    wrap.style.setProperty("--ly", y + "px");
+    if (!reduceMotion) {
+      const speed = Math.hypot(x - lastX, y - lastY);
+      split = Math.min(6, Math.max(split, 1.5 + speed * 0.12)); // hızlı hareket = daha güçlü renk kayması
+      if (!raf) raf = requestAnimationFrame(decay);
+    }
+    lastX = x; lastY = y;
+  });
+}
+
+/* Buton ve menü yazılarında kısa karakter çözülmesi */
+function hoverScramble() {
+  if (reduceMotion || !window.matchMedia("(pointer: fine)").matches) return;
+  const CH = "01<>/#$%*+=ΞΔ";
+  $$(".btn, .nav a, .repo").forEach((el) => {
+    const text = el.textContent;
+    let busy = false;
+    el.addEventListener("pointerenter", () => {
+      if (busy) return;
+      busy = true;
+      el.style.width = el.getBoundingClientRect().width + "px"; // genişlik sabit kalsın, yazı zıplamasın
+      const start = performance.now();
+      const step = (now) => {
+        const p = Math.min((now - start) / 280, 1);
+        const n = Math.floor(p * text.length);
+        el.textContent = text.slice(0, n) + [...text.slice(n)].map((c) => (c === " " ? " " : CH[(Math.random() * CH.length) | 0])).join("");
+        if (p < 1) requestAnimationFrame(step);
+        else { el.textContent = text; el.style.width = ""; busy = false; }
+      };
+      requestAnimationFrame(step);
+    });
+  });
+}
+
 /* Başlat */
 startClock();
 city();
+rain();
+nameLens();
+hoverScramble();
 ui();
 tiltCards();
 terminal();

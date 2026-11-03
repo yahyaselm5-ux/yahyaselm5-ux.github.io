@@ -188,7 +188,7 @@ code {
   font-family: var(--f-display); font-weight: 700;
   font-size: clamp(3rem, 9.5vw, 8.5rem);
   line-height: 1; letter-spacing: -.01em;
-  margin: 0 0 28px;
+  margin: 0;
 }
 .name .line { display: block; width: fit-content; }
 .name .outline {
@@ -209,19 +209,42 @@ code {
 .btn {
   --b: var(--edge);
   position: relative;
+  display: inline-block;
+  overflow: hidden;
   font-family: var(--f-display); font-weight: 600; font-size: 1rem;
   text-decoration: none; color: var(--ink);
   padding: 13px 24px;
   background: rgba(22, 18, 48, .7);
   border: 1px solid var(--b);
   clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
-  transition: background .2s, color .2s, box-shadow .2s, border-color .2s;
+  transition: background .2s, color .2s, border-color .2s, text-shadow .2s, transform .12s;
 }
-.btn:hover { border-color: var(--accent-2); color: var(--accent-2); }
+/* Üzerinden geçen ışık bandı */
+.btn::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, .22) 48%, transparent 62%);
+  transform: translateX(-120%);
+}
+/* Sağ alt köşede yanan köşe işareti */
+.btn::before {
+  content: ""; position: absolute; right: 4px; bottom: 4px;
+  width: 7px; height: 7px; pointer-events: none;
+  border-right: 2px solid var(--accent-2); border-bottom: 2px solid var(--accent-2);
+  opacity: 0; transform: translate(-3px, -3px);
+  transition: opacity .2s, transform .2s;
+}
+.btn:hover::after { transform: translateX(120%); transition: transform .6s cubic-bezier(.2, .7, .2, 1); }
+.btn:hover::before { opacity: 1; transform: none; }
+.btn:hover {
+  border-color: var(--accent-2); color: var(--accent-2);
+  text-shadow: -1px 0 rgba(255, 46, 136, .7), 1px 0 rgba(41, 230, 242, .7);
+}
+.btn:active { transform: translateY(1px); }
 .btn-primary {
   background: var(--accent); color: var(--night); border-color: var(--accent);
 }
-.btn-primary:hover { background: var(--ink); color: var(--night); border-color: var(--ink); }
+.btn-primary::before { border-color: var(--night); }
+.btn-primary:hover { background: var(--ink); color: var(--night); border-color: var(--ink); text-shadow: -1px 0 rgba(255, 46, 136, .55), 1px 0 rgba(41, 230, 242, .55); }
 .btn-ghost { background: transparent; }
 
 .status {
@@ -376,7 +399,8 @@ code {
   color: var(--accent-2); text-decoration: none;
   border-bottom: 1px solid currentColor;
 }
-.repo:hover { color: var(--ink); }
+.repo { transition: color .2s, text-shadow .2s, letter-spacing .25s; }
+.repo:hover { color: var(--ink); letter-spacing: .02em; text-shadow: 0 0 10px rgba(41, 230, 242, .6); }
 .tags li {
   font-family: var(--f-mono); font-size: .76rem;
   padding: 3px 9px; background: rgba(41, 230, 242, .08);
@@ -449,7 +473,9 @@ code {
   background: none; color: var(--accent-2);
   border: 1px solid rgba(41, 230, 242, .4); padding: 4px 12px; cursor: pointer;
 }
-.copy:hover { background: rgba(41, 230, 242, .1); }
+.copy { transition: background .2s, box-shadow .2s, transform .12s; }
+.copy:hover { background: rgba(41, 230, 242, .1); box-shadow: 0 0 0 1px rgba(41, 230, 242, .5), 0 0 14px rgba(41, 230, 242, .25); }
+.copy:active { transform: translateY(1px); }
 
 .footer {
   border-top: 1px solid rgba(58, 47, 120, .6);
@@ -511,3 +537,50 @@ code {
   width: min(var(--wrap), 100% - 40px); margin-inline: auto;
 }
 .notfound .sub { margin: -24px 0 32px; }
+
+/* Arka plan yağmuru */
+.rain {
+  position: fixed; inset: 0; z-index: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+main, .footer { position: relative; z-index: 1; }
+
+/* İsim merceği: fare nerede ise orası neon dolgu ve renk kaymasıyla parlar */
+.name-wrap {
+  --lx: 50%; --ly: 50%; --split: 1.5px;
+  position: relative; width: fit-content;
+  margin: 0 0 28px;
+}
+.lens {
+  position: absolute; inset: 0;
+  pointer-events: none; opacity: 0;
+  transition: opacity .3s ease;
+  -webkit-mask-image: radial-gradient(circle 150px at var(--lx) var(--ly), #000 30%, transparent 72%);
+          mask-image: radial-gradient(circle 150px at var(--lx) var(--ly), #000 30%, transparent 72%);
+}
+.name-wrap.active .lens { opacity: 1; }
+.name-wrap.active { cursor: crosshair; }
+.lens .line {
+  position: relative;
+  color: transparent;
+  -webkit-text-stroke: 0;
+  background: linear-gradient(100deg, var(--cyan) 0%, #A6F7FF 30%, var(--magenta) 80%);
+  -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 0 14px rgba(41, 230, 242, .55));
+}
+.lens .line::before, .lens .line::after {
+  content: attr(data-text);
+  position: absolute; inset: 0;
+  -webkit-text-fill-color: currentColor;
+  mix-blend-mode: screen; opacity: .55;
+}
+.lens .line::before { color: var(--magenta); transform: translateX(calc(var(--split) * -1)); }
+.lens .line::after { color: var(--cyan); transform: translateX(var(--split)); }
+/* Mercek içindeki ince tarama çizgileri */
+.lens::after {
+  content: ""; position: absolute; inset: 0;
+  background: repeating-linear-gradient(to bottom, rgba(14, 11, 30, .5) 0 1px, transparent 1px 4px);
+  animation: lensScan 6s linear infinite;
+}
+@keyframes lensScan { to { background-position: 0 120px; } }

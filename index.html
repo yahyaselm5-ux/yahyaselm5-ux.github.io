@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <canvas class="rain" id="rain" aria-hidden="true"></canvas>
   <div class="boot" id="boot" aria-hidden="true">
     <pre class="boot-log" id="bootLog"></pre>
   </div>
@@ -46,10 +47,16 @@
 
       <div class="hero-inner">
         <p class="handle">github/yahyaselm5-ux</p>
-        <h1 class="name" aria-label="Yahya Selim Özdamar">
-          <span class="line glitch" data-text="Yahya Selim">Yahya Selim</span>
-          <span class="line glitch outline" data-text="Özdamar">Özdamar</span>
-        </h1>
+        <div class="name-wrap" id="nameWrap">
+          <h1 class="name" aria-label="Yahya Selim Özdamar">
+            <span class="line" data-text="Yahya Selim">Yahya Selim</span>
+            <span class="line outline" data-text="Özdamar">Özdamar</span>
+          </h1>
+          <div class="name lens" aria-hidden="true">
+            <span class="line" data-text="Yahya Selim">Yahya Selim</span>
+            <span class="line" data-text="Özdamar">Özdamar</span>
+          </div>
+        </div>
         <p class="role">Yazılım mühendisliği öğrencisiyim. C# ile yapay zeka destekli uygulamalar, Kotlin ile native Android uygulamaları geliştiriyorum. Hedefim yalnızca çalışan değil, okunabilir ve sürdürülebilir kod yazmak.</p>
         <div class="actions">
           <a class="btn btn-primary" href="#projeler">Projelerimi gör</a>
