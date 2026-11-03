@@ -370,21 +370,21 @@ Yazılım mühendisliği 4. sınıf, Malatya Turgut Özal Üniversitesi. Konum: 
 C# ile yapay zeka destekli uygulamalar, Kotlin ile native Android uygulamaları geliştiriyorum.
 Hedefim yalnızca çalışan değil, okunabilir ve sürdürülebilir kod yazmak.`,
     deneyim: () =>
-`<span class="hl">CRS Soft Yazılım Hizmetleri</span>, stajyer yazılım geliştirici
-  - yapay zeka odaklı staj programında TFT için sohbet botu geliştirdi
+`<span class="hl">Stajyer yazılım geliştirici</span>, yapay zeka odaklı staj programı
+  - TFT oyuncuları için yapay zeka destekli sohbet botu geliştirdi
   - altyapıyı ve masaüstü arayüzünü C# ile kodladı
   - yapay zeka modelinin entegrasyonunu sağladı
-  - yapay zeka destekli envanter ve stok yönetim sistemi geliştirdi`,
+  - .NET 9 ve MS SQL ile yapay zeka asistanlı envanter sistemi geliştirdi`,
     projeler: () =>
 `<span class="warn">[geliştiriliyor]</span> Resmi Yazı Tercümanı    resmî yazıları sadeleştiren ML uygulaması
-<span class="hl">[tamamlandı]</span>     Akıllı Envanter Sistemi yapay zeka destekli stok yönetimi (staj)
+<span class="hl">[tamamlandı]</span>     Akıllı Envanter Sistemi .NET 9, React ve yapay zeka asistanı (staj)
 <span class="hl">[tamamlandı]</span>     Kuaförüm                konum bazlı kuaför randevu uygulaması (Kotlin)
 <span class="hl">[tamamlandı]</span>     E-Ticaret Web Sitesi    3 kişilik ekip, veritabanı entegrasyonlu platform`,
     yetenekler: () =>
-`programlama  C#  Kotlin  Java
-mobil        Jetpack Compose  MVVM  Google Maps
-veri/web     SQL  HTML  CSS
-yapay zeka   model entegrasyonu  sohbet botu
+`programlama  C#  Kotlin  Java  TypeScript
+backend      .NET 9 Web API  MS SQL  Dapper  JWT
+mobil/web    Jetpack Compose  MVVM  React  HTML  CSS
+yapay zeka   LLM entegrasyonu  tool calling  MCP
 diller       Türkçe (ana dil)  İngilizce (B2)`,
     iletisim: () =>
 `e-posta   yahya.selm5@gmail.com
