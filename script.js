@@ -1,4 +1,4 @@
-/* Yahya Selim Özdamar — kişisel web sitesi */
+/* Yahya Selim Özdamar, kişisel web sitesi */
 "use strict";
 
 const reduceMotion = typeof window.__reduce === "boolean" ? window.__reduce : window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -83,7 +83,7 @@ function introName() {
 function city() {
   const canvas = $("#city");
   const ctx = canvas.getContext("2d");
-  let W, H, DPR, horizon, layers = [], drops = [], signs = [];
+  let W, H, DPR, horizon, layers = [], signs = [];
   let mouseX = 0, mouseY = 0, curX = 0, curY = 0;
   let t = 0, running = true, raf;
 
@@ -166,11 +166,6 @@ function city() {
     horizon = H * 0.7;
 
     layers = [buildLayer(0), buildLayer(1), buildLayer(2)];
-
-    const count = 0; // yağmur artık tüm sayfanın önündeki ayrı katmanda
-    drops = Array.from({ length: count }, () => ({
-      x: rand(0, W), y: rand(-H, H), len: rand(8, 22), sp: rand(6, 13), a: rand(0.08, 0.35),
-    }));
 
     // yanıp sönen neon tabelalar (ön katmanda)
     signs = Array.from({ length: W < 760 ? 2 : Math.round(W / 320) }, () => ({
@@ -302,22 +297,6 @@ function city() {
     });
   }
 
-  function drawRain() {
-    ctx.strokeStyle = C.cyan;
-    ctx.lineWidth = 1;
-    drops.forEach((d) => {
-      ctx.globalAlpha = d.a;
-      ctx.beginPath();
-      ctx.moveTo(d.x, d.y);
-      ctx.lineTo(d.x - d.len * 0.18, d.y + d.len);
-      ctx.stroke();
-      d.y += d.sp;
-      d.x -= d.sp * 0.18;
-      if (d.y > H) { d.y = rand(-60, -10); d.x = rand(0, W + 60); }
-    });
-    ctx.globalAlpha = 1;
-  }
-
   function render() {
     curX += (mouseX - curX) * 0.05;
     curY += (mouseY - curY) * 0.05;
@@ -326,7 +305,6 @@ function city() {
     drawLayers();
     drawSigns();
     drawFloor();
-    drawRain();
   }
 
   function loop() {
@@ -401,20 +379,17 @@ function terminal() {
   <span class="hl">temizle</span>      ekranı temizler`,
     kimim: () =>
 `Yahya Selim Özdamar
-Yazılım mühendisliği 4. sınıf, Malatya Turgut Özal Üniversitesi. Konum: Amasya.
-C# ile yapay zeka destekli uygulamalar, Kotlin ile native Android uygulamaları geliştiriyorum.
-Hedefim yalnızca çalışan değil, okunabilir ve sürdürülebilir kod yazmak.`,
+Yazılım mühendisliği 4. sınıf, Malatya Turgut Özal Üniversitesi.
+Backend, web ve mobil projeler geliştiriyorum; en çok C# ve .NET ile çalışıyorum.`,
     deneyim: () =>
-`<span class="hl">Stajyer yazılım geliştirici</span>, yapay zeka odaklı staj programı
-  - TFT oyuncuları için yapay zeka destekli sohbet botu geliştirdi
-  - altyapıyı ve masaüstü arayüzünü C# ile kodladı
-  - yapay zeka modelinin entegrasyonunu sağladı
-  - .NET 9 ve MS SQL ile yapay zeka asistanlı envanter sistemi geliştirdi`,
+`<span class="hl">Stajyer yazılım geliştirici</span>
+  - TFT oyuncuları için sohbet botu (C#, masaüstü)
+  - envanter ve stok yönetim sistemi (.NET 9, MS SQL, React)`,
     projeler: () =>
-`<span class="warn">[geliştiriliyor]</span> Resmi Yazı Tercümanı    resmî yazıları sadeleştiren ML uygulaması
-<span class="hl">[tamamlandı]</span>     Akıllı Envanter Sistemi .NET 9, React ve yapay zeka asistanı (staj)
-<span class="hl">[tamamlandı]</span>     Kuaförüm                konum bazlı kuaför randevu uygulaması (Kotlin)
-<span class="hl">[tamamlandı]</span>     E-Ticaret Web Sitesi    3 kişilik ekip, veritabanı entegrasyonlu platform`,
+`<span class="warn">[geliştiriliyor]</span> Resmi Yazı Tercümanı    resmî yazıları sade Türkçeye çevirir
+<span class="hl">[tamamlandı]</span>     Akıllı Envanter Sistemi .NET 9, React, MS SQL (staj)
+<span class="hl">[tamamlandı]</span>     Kuaförüm                kuaför arama ve randevu (Kotlin)
+<span class="hl">[tamamlandı]</span>     E-Ticaret Web Sitesi    3 kişilik ekip, SQL`,
     yetenekler: () =>
 `programlama  C#  Kotlin  Java  TypeScript
 backend      .NET 9 Web API  MS SQL  Dapper  JWT
@@ -470,13 +445,13 @@ github    <a href="https://github.com/yahyaselm5-ux" target="_blank" rel="noopen
         print(line, `${args[0]} bölümüne gidiliyor...`);
         setTimeout(() => document.getElementById(target).scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth" }), 250);
       } else {
-        print(line, `Bölüm bulunamadı. Geçerli bölümler: hakkimda, deneyim, projeler, yetkinlikler, iletisim`);
+        print(line, `Böyle bir bölüm yok. Bölümler: hakkimda, deneyim, projeler, yetkinlikler, iletisim`);
       }
       return;
     }
     const fn = commands[name];
     if (fn) print(line, fn(args));
-    else print(line, `Komut bulunamadı: ${esc(name)}. Kullanılabilir komutlar için <span class="hl">yardim</span> yazın.`);
+    else print(line, `Komut bulunamadı: ${esc(name)}. Komutlar için <span class="hl">yardim</span> yaz.`);
   }
 
   form.addEventListener("submit", (e) => {
@@ -503,7 +478,7 @@ github    <a href="https://github.com/yahyaselm5-ux" target="_blank" rel="noopen
 
   $("#term").addEventListener("click", (e) => { if (e.target.tagName !== "A") input.focus({ preventScroll: true }); });
 
-  out.innerHTML = `<div class="res">Hoş geldiniz. Kullanılabilir komutları görmek için <span class="hl">yardim</span> yazın.</div>`;
+  out.innerHTML = `<div class="res">Komutları görmek için <span class="hl">yardim</span> yaz.</div>`;
 }
 
 /* Menü, kopyalama, aktif bölüm */
@@ -554,9 +529,9 @@ function rain() {
   let wind = 0, windTarget = 0, flash = 0, nextFlash = 0;
 
   const LAYERS = [
-    { len: [10, 18], sp: [6, 9], a: 0.22, w: 1 },
-    { len: [18, 30], sp: [10, 14], a: 0.34, w: 1.2 },
-    { len: [34, 56], sp: [16, 22], a: 0.42, w: 1.5 },
+    { len: [10, 18], sp: [6, 9], a: 0.18, w: 1 },
+    { len: [18, 30], sp: [10, 14], a: 0.28, w: 1.2 },
+    { len: [34, 56], sp: [16, 22], a: 0.36, w: 1.4 },
   ];
   const COLORS = ["#C9C2FF", "#29E6F2", "#C9C2FF", "#FF7AB8"];
   const rand = (a, b) => a + Math.random() * (b - a);
@@ -576,7 +551,7 @@ function rain() {
     W = window.innerWidth; H = window.innerHeight;
     canvas.width = W * DPR; canvas.height = H * DPR;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    const n = Math.round((W * H) / (W < 760 ? 7000 : 4600));
+    const n = Math.round((W * H) / (W < 760 ? 8000 : 5400));
     drops = Array.from({ length: n }, (_, i) => {
       const d = { layer: i % 3 === 0 ? 2 : i % 3 };
       spawn(d, false);

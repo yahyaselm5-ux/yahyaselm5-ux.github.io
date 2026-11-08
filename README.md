@@ -1,22 +1,21 @@
-# Yahya Selim Özdamar — Kişisel Web Sitesi
+# Yahya Selim Özdamar, Kişisel Web Sitesi
 
-Yazılım mühendisliği öğrencisi olarak deneyimlerimi, projelerimi ve yetkinliklerimi tanıttığım kişisel web sitesi.
+Deneyimlerimi ve projelerimi anlatan kişisel web sitem.
 
 **Canlı adres:** https://yahyaselm5-ux.github.io
 
 ## Özellikler
 
-- Canvas ile çizilen, yüksek çözünürlüklü ekranlara uyumlu animasyonlu şehir sahnesi ve ön plan yağmuru
-- Özel imleç, kaydırmaya duyarlı başlık ve kart animasyonları, akan bantlar
-- Harici kütüphane kullanılmadan yazılmış animasyon katmanı
+- Canvas ile çizilen şehir sahnesi ve yağmur
+- Özel imleç, kaydırma animasyonları, akan bantlar (harici kütüphane yok)
 - Siteyi komutlarla gezmeyi sağlayan etkileşimli terminal
-- Mobil uyumlu, klavye ile erişilebilir arayüz
-- Hareket azaltma tercihine (`prefers-reduced-motion`) saygı
-- Content Security Policy ile sınırlandırılmış kaynak yükleme
+- Mobil uyum ve klavyeyle kullanım
+- Sistemde hareket azaltma açıksa animasyonlar kapalı başlar (FX düğmesiyle açılır)
+- Content Security Policy
 
 ## Kullanılan teknolojiler
 
-HTML5, CSS3 ve framework kullanılmadan yazılmış JavaScript.
+HTML, CSS ve framework kullanmadan JavaScript.
 
 ## Dosya yapısı
 

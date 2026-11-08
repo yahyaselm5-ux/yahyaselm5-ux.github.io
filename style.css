@@ -1,4 +1,4 @@
-/* Yahya Selim Özdamar — kişisel web sitesi */
+/* Yahya Selim Özdamar, kişisel web sitesi */
 
 :root {
   --night: #0E0B1E;      /* zemin: derin çivit gece */
@@ -353,6 +353,12 @@ code {
   font-family: var(--f-mono); font-size: .8rem; color: var(--dim);
   border: 1px solid var(--edge); padding: 3px 10px;
 }
+.job-projects { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 40px; }
+.job-project h4 {
+  font-family: var(--f-display); font-weight: 600; font-size: 1.1rem;
+  color: var(--ink); margin: 0 0 12px;
+}
+@media (max-width: 760px) { .job-projects { grid-template-columns: 1fr; } }
 .ticks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; max-width: 80ch; }
 .ticks li { position: relative; padding-left: 26px; color: var(--dim); }
 .ticks li::before {
@@ -723,7 +729,6 @@ html.fx .section .h2.in .ch {
 }
 .section .h2 { overflow: hidden; padding-bottom: .08em; }
 .section .h2::selection, .section .h2 .ch::selection { background: var(--accent); }
-.section .h2 .wl { display: none; }
 html.fx .section .h2 { background: linear-gradient(var(--volt), var(--volt)) no-repeat 0 100% / 0 3px; }
 html.fx .section .h2.in { background-size: 100% 3px; transition: background-size .9s cubic-bezier(.16, 1, .3, 1) .35s; }
 

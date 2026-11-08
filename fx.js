@@ -52,9 +52,8 @@
       cursor.classList.toggle("is-link", !!link && !name);
       cursor.classList.toggle("is-text", !!t.closest("input"));
       let text = "";
-      if (link && !name) {
-        if (link.matches("input")) text = "";
-        else if (link.dataset.cursor) text = link.dataset.cursor;
+      if (link && !name && !link.matches("input")) {
+        if (link.dataset.cursor) text = link.dataset.cursor;
         else if (link.matches(".tilt")) text = "incele";
         else if (link.target === "_blank") text = "aç ↗";
         else text = "git";
