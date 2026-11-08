@@ -551,7 +551,7 @@ function rain() {
     W = window.innerWidth; H = window.innerHeight;
     canvas.width = W * DPR; canvas.height = H * DPR;
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    const n = Math.round((W * H) / (W < 760 ? 8000 : 5400));
+    const n = Math.round((W * H) / (W < 760 ? 16000 : 10800));
     drops = Array.from({ length: n }, (_, i) => {
       const d = { layer: i % 3 === 0 ? 2 : i % 3 };
       spawn(d, false);
